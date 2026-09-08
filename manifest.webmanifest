@@ -1,0 +1,12 @@
+{
+  "name": "מתרגלים ומצליחים",
+  "short_name": "מתרגלים",
+  "lang": "he",
+  "dir": "rtl",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f5f7ff",
+  "theme_color": "#6c63ff",
+  "description": "מערכת תרגול חשבון לשני תלמידים",
+  "icons": [{"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+}

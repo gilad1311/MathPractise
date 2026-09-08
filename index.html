@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#6c63ff">
+  <meta name="description" content="מערכת תרגול חשבון לשני תלמידים">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <title>מתרגלים ומצליחים</title>
+</head>
+<body>
+  <div id="confetti" aria-hidden="true"></div>
+  <header class="topbar">
+    <div>
+      <div class="brand">🌟 מתרגלים ומצליחים</div>
+      <div class="subtitle">מערכת תרגול חשבון • כיף, תרגול והתקדמות</div>
+    </div>
+    <button id="installBtn" class="secondary hidden">📲 התקנה</button>
+  </header>
+
+  <main class="container">
+    <section id="home" class="screen active">
+      <div class="hero card">
+        <div class="hero-text">
+          <span class="pill">למידה מותאמת אישית</span>
+          <h1>בואו נתרגל ונצבור כוכבים ⭐</h1>
+          <p>שני תלמידים, תרגילים לפי הנושאים שנלמדו, ניסיון נוסף אחרי טעות ומשפטי העצמה כשצריך.</p>
+        </div>
+        <div class="hero-art">🧠<br>➕ ✖️<br>📐 ⏰</div>
+      </div>
+
+      <div class="section-title"><h2>בחרו תלמיד</h2><span id="overallHint"></span></div>
+      <div class="students">
+        <button class="student-card" data-student="עילאי">
+          <div class="avatar">👦</div><div><strong>עילאי</strong><small>התרגול שלי</small></div>
+          <span class="student-score" id="score-עילאי">0 ⭐</span>
+        </button>
+        <button class="student-card" data-student="רואי">
+          <div class="avatar">🧒</div><div><strong>רואי</strong><small>התרגול שלי</small></div>
+          <span class="student-score" id="score-רואי">0 ⭐</span>
+        </button>
+      </div>
+
+      <div class="card topics-preview">
+        <h2>נושאי התרגול</h2>
+        <div class="topic-grid">
+          <div>➕ חיבור וחיסור</div><div>✖️ כפל וחילוק</div><div>🔢 מספרים עד 1,000</div>
+          <div>📏 פעולות במאונך</div><div>💬 בעיות מילוליות</div><div>📐 גיאומטריה ומדידות</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="reportHome" class="secondary">📊 דוח התקדמות</button>
+        <button id="resetAll" class="danger">איפוס נתונים</button>
+      </div>
+    </section>
+
+    <section id="topics" class="screen">
+      <button class="back" data-back="home">→ חזרה</button>
+      <div class="section-title"><div><h1 id="studentTitle"></h1><p>בחרו נושא לתרגול</p></div><div class="big-score" id="currentScore">0 ⭐</div></div>
+      <div id="topicCards" class="topic-list"></div>
+      <div class="card mini-note">💡 אפשר לתרגל נושא אחד או לבחור “תרגול מעורב” כדי לשלב את כל החומר.</div>
+    </section>
+
+    <section id="exercise" class="screen">
+      <div class="exercise-head">
+        <button class="back" data-back="topics">→ נושאים</button>
+        <div><span id="exerciseTopic"></span><strong id="progress"></strong></div>
+        <div class="score-badge" id="exerciseScore">0 ⭐</div>
+      </div>
+      <div class="card exercise-card">
+        <div id="streak" class="streak"></div>
+        <div id="question" class="question"></div>
+        <div id="hint" class="hint hidden"></div>
+        <div id="answerArea"></div>
+        <button id="checkBtn" class="primary">בדיקה ✓</button>
+        <div id="feedback" class="feedback" role="status"></div>
+      </div>
+    </section>
+
+    <section id="report" class="screen">
+      <button class="back" data-back="home">→ חזרה</button>
+      <div class="card report-header">
+        <div><h1>📊 דוח התקדמות</h1><p>סיכום התרגול של עילאי ורואי</p></div>
+        <div class="report-actions"><button id="shareReport" class="primary">📤 שיתוף</button><button id="printReport" class="secondary">🖨️ הדפסה / PDF</button></div>
+      </div>
+      <div id="reportContent"></div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast"></div>
+  <script src="app.js"></script>
+</body>
+</html>
