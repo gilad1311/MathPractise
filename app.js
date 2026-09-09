@@ -1,160 +1,112 @@
-const TOPICS = [
-  {id:"add20", icon:"➕", title:"חיבור וחיסור עד 20", desc:"עם ובלי מעבר/פריטה", gen:()=>{let a=rand(0,20),b=rand(0,20); if(Math.random()<.5){a=rand(0,20);b=rand(0,20-a)} return {q:`${a} + ${b}`,a:a+b}}, genSub:()=>{let a=rand(5,20),b=rand(0,a);return {q:`${a} − ${b}`,a:a-b}}},
-  {id:"add100", icon:"💯", title:"חיבור וחיסור עד 100", desc:"עם ובלי מעבר/פריטה", gen:()=>{let a=rand(10,90),b=rand(0,100-a);return {q:`${a} + ${b}`,a:a+b}}, genSub:()=>{let a=rand(10,100),b=rand(0,a);return {q:`${a} − ${b}`,a:a-b}}},
-  {id:"mult100", icon:"✖️", title:"כפל וחילוק עד 100", desc:"תרגילי כפל וחילוק", gen:()=>{let a=rand(2,10),b=rand(2,10);return {q:`${a} × ${b}`,a:a*b}}, genSub:()=>{let b=rand(2,10),ans=rand(2,10);return {q:`${b*ans} ÷ ${b}`,a:ans}}},
-  {id:"numbers1000", icon:"🔢", title:"מספרים עד 1,000", desc:"מספרים ופעולות", gen:()=>{let a=rand(100,999),b=rand(1,Math.min(100,999-a));return {q:`${a} + ${b}`,a:a+b}}, genSub:()=>{let a=rand(100,999),b=rand(1,Math.min(100,a));return {q:`${a} − ${b}`,a:a-b}}},
-  {id:"vertical", icon:"📏", title:"חיבור וחיסור במאונך", desc:"אותם תרגילים בתצוגה מסודרת", gen:()=>{let a=rand(100,999),b=rand(10,Math.min(999-a,300));return {q:`${a} + ${b}`,a:a+b,vertical:true}}, genSub:()=>{let a=rand(100,999),b=rand(10,a);return {q:`${a} − ${b}`,a:a-b,vertical:true}}},
-  {id:"word", icon:"💬", title:"בעיות מילוליות", desc:"קריאה, הבנה ובחירת פעולה", gen:wordProblem},
-  {id:"geometry", icon:"📐", title:"גיאומטריה ומדידות", desc:"אורך, מצולעים, זמן וגופים", gen:geometryProblem},
-  {id:"mixed", icon:"🎯", title:"תרגול מעורב", desc:"שילוב מכל נושאי הלימוד", gen:()=>{const list=TOPICS.filter(t=>t.id!=="mixed"); const t=list[rand(0,list.length-1)]; return Math.random()<.5?t.gen():t.genSub?t.genSub():t.gen()}}
+const TOPICS=[
+{id:"add20",icon:"➕",title:"חיבור וחיסור עד 20",desc:"מתחילים במספרים קטנים ומתקדמים בהדרגה",make:l=>{l=levelIndex(l);let a,b; if(l===0){a=r(0,5);b=r(0,5-a)} else if(l===1){a=r(0,10);b=r(0,10-a)} else if(l===2){a=r(0,20);b=r(0,20-a)} else {a=r(8,20);b=r(1,20-a)} return Math.random()<.5?{q:`${a} + ${b}`,a:a+b}:{q:`${a+b} − ${a}`,a:b}}},
+{id:"add100",icon:"💯",title:"חיבור וחיסור עד 100",desc:"עולים בהדרגה ממספרים קטנים לחיבור ופריטה",make:l=>{l=levelIndex(l);let a,b;if(l===0){a=r(1,10);b=r(1,10)}else if(l===1){a=r(1,30);b=r(1,30)}else if(l===2){a=r(10,70);b=r(1,100-a)}else{a=r(30,90);b=r(1,100-a)}return Math.random()<.5?{q:`${a} + ${b}`,a:a+b}:{q:`${a+b} − ${b}`,a:a}}},
+{id:"mult100",icon:"✖️",title:"כפל וחילוק עד 100",desc:"מתחילים בלוחות קטנים ומתקדמים",make:l=>{l=levelIndex(l);let x,y;if(l===0){x=r(2,3);y=r(2,5)}else if(l===1){x=r(2,5);y=r(2,5)}else if(l===2){x=r(2,10);y=r(2,10)}else{x=r(2,12);y=r(2,10)}return Math.random()<.5?{q:`${x} × ${y}`,a:x*y}:{q:`${x*y} ÷ ${x}`,a:y}}},
+{id:"numbers1000",icon:"🔢",title:"מספרים עד 1,000",desc:"מתקדמים בהדרגה למספרים ופעולות גדולים",make:l=>{l=levelIndex(l);let a,b;if(l===0){a=r(1,20);b=r(1,20)}else if(l===1){a=r(10,100);b=r(1,50)}else if(l===2){a=r(100,500);b=r(10,100)}else{a=r(200,900);b=r(10,Math.max(10,Math.min(200,999-a)))}return Math.random()<.5?{q:`${a} + ${b}`,a:a+b}:{q:`${a+b} − ${b}`,a:a}}},
+{id:"vertical",icon:"📏",title:"חיבור וחיסור במאונך",desc:"מתחילים בתרגילים קצרים ומתקדמים",make:l=>{l=levelIndex(l);let a,b;if(l===0){a=r(10,40);b=r(1,a)}else if(l===1){a=r(20,99);b=r(1,a)}else if(l===2){a=r(100,500);b=r(10,Math.min(100,a))}else{a=r(100,900);b=r(10,Math.min(200,a))}return Math.random()<.5?{q:`${a} + ${b}`,a:a+b}:{q:`${a} − ${b}`,a:a-b}}},
+{id:"word",icon:"💬",title:"בעיות מילוליות",desc:"מתחילים בסיפורים קצרים וברורים",make:l=>word(levelIndex(l))},
+{id:"geometry",icon:"📐",title:"גיאומטריה ומדידות",desc:"אורך, מצולעים, זמן וגופים",make:l=>geo(levelIndex(l))},
+{id:"mixed",icon:"🎯",title:"תרגול מעורב",desc:"שילוב מכל נושאי הלימוד",make:l=>{const t=TOPICS[r(0,6)];return t.make(levelIndex(l))}}
 ];
-
-const state = {
-  data: JSON.parse(localStorage.getItem("mathPracticeData") || "{}"),
-  student:null, topic:null, question:null, attempts:0, completed:0, total:10, streak:0, selected:null
-};
-for(const s of ["עילאי","רואי"]) state.data[s] ||= {score:0,correct:0,questions:0,secondTry:0,byTopic:{},history:[]};
-
-const $=id=>document.getElementById(id);
-const rand=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
-const save=()=>localStorage.setItem("mathPracticeData",JSON.stringify(state.data));
-const show=id=>{document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));$(id).classList.add("active");scrollTo(0,0)};
-const current=()=>state.data[state.student];
-
-function wordProblem(){
-  const type=rand(0,3);
-  if(type===0){let n=rand(3,12),p=rand(2,8);return {q:`לעילאי היו ${n} מדבקות. הוא קיבל עוד ${p}. כמה מדבקות יש לו עכשיו?`,a:n+p,options:[n+p,n-p,n*p,n]}}
-  if(type===1){let n=rand(12,30),p=rand(2,n-2);return {q:`לרואי היו ${n} סוכריות. הוא נתן ${p} לחבר. כמה נשארו?`,a:n-p,options:[n-p,n+p,p,n]}}
-  if(type===2){let n=rand(2,10),p=rand(2,10);return {q:`יש ${n} שקיות ובכל שקית ${p} עפרונות. כמה עפרונות בסך הכול?`,a:n*p,options:[n*p,n+p,n-p,p]}}
-  let total=rand(12,40),groups=rand(2,5); while(total%groups) total++; return {q:`יש ${total} עוגיות שמחלקים שווה בשווה בין ${groups} ילדים. כמה יקבל כל ילד?`,a:total/groups,options:[total/groups,total+groups,total-groups,groups]};
+const LEVELS=["התחלה","קל","בינוני","מתקדם"];
+let data=JSON.parse(localStorage.getItem("practiceV2")||"{}");
+for(const n of ["עילאי","רואי"]){
+  data[n] ||= {score:0,correct:0,questions:0,secondTry:0,byTopic:{},sessions:[],goal:100,levels:{}};
+  data[n].levels ||= {};
+  data[n].sessions ||= [];
 }
-function geometryProblem(){
-  const t=rand(0,3);
-  if(t===0){let a=rand(2,20);return {q:`אורך עיפרון הוא ${a} ס״מ. איזה מדד מתאים לאורך עיפרון?`,a:"סנטימטרים",options:["סנטימטרים","קילוגרמים","שעות","ליטרים"]}}
-  if(t===1){return {q:"כמה צלעות יש למלבן?",a:4,options:[3,4,5,6]}}
-  if(t===2){let h=rand(1,12);return {q:`השעה עכשיו ${h}:00. בעוד שעתיים תהיה השעה...`,a:`${(h+2-1)%12+1}:00`,options:[`${(h+1-1)%12+1}:00`,`${(h+2-1)%12+1}:00`,`${(h+3-1)%12+1}:00`,`${h}:00`]}}
-  return {q:"איזה גוף יש לו 6 פאות ריבועיות?",a:"קובייה",options:["קובייה","כדור","חרוט","גליל"]};
+const levelName=i=>LEVELS[Math.max(0,Math.min(LEVELS.length-1,i))];
+const levelIndex=l=>typeof l==='number'?l:Math.max(0,LEVELS.indexOf(l));
+let S={student:null,topic:null,levelIndex:0,q:null,attempt:0,done:0,total:10,streak:0};
+const $=id=>document.getElementById(id), r=(a,b)=>Math.floor(Math.random()*(b-a+1))+a, save=()=>localStorage.setItem("practiceV2",JSON.stringify(data));
+function show(id){document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));$(id).classList.add("active");scrollTo(0,0)}
+function updateHome(){for(const n of ["עילאי","רואי"])$(`homeScore-${n}`).textContent=`${data[n].score} ⭐`}
+function word(l=0){
+  let t=r(0,3),n,p;
+  if(t===0){n=r(2, l===0?5:l===1?10:l===2?20:30);p=r(1,Math.min(5,n));return{q:`לעילאי היו ${n} מדבקות והוא קיבל עוד ${p}. כמה יש עכשיו?`,a:n+p}}
+  if(t===1){n=r(l===0?5:l===1?10:l===2?15:25,l===0?10:l===1?25:l===2?40:60);p=r(1,Math.max(1,n-2));return{q:`לרואי היו ${n} סוכריות והוא נתן ${p}. כמה נשארו?`,a:n-p}}
+  if(t===2){n=r(2,l===0?3:l===1?5:l===2?8:10);p=r(2,l===0?3:l===1?5:l===2?10:12);return{q:`יש ${n} שקיות ובכל שקית ${p} עפרונות. כמה עפרונות בסך הכול?`,a:n*p}}
+  n=r(2,l===0?4:l===1?6:l===2?8:10);p=r(2,l===0?3:l===1?5:l===2?8:10);return{q:`יש ${n*p} עוגיות שמחלקים שווה בשווה בין ${n} ילדים. כמה לכל ילד?`,a:p}
 }
-
-function updateScores(){
-  for(const s of ["עילאי","רואי"]) $(`score-${s}`).textContent=`${state.data[s].score} ⭐`;
-  if(state.student){$("currentScore").textContent=`${current().score} ⭐`; $("exerciseScore").textContent=`${current().score} ⭐`}
+function geo(l=0){
+  let t=r(0,3);
+  if(t===0){let x=r(2,l===0?10:l===1?20:50);return{q:`אורך עיפרון הוא ${x} __. איזו יחידת מידה מתאימה?`,a:"סנטימטרים",opts:["סנטימטרים","קילוגרמים","שעות","ליטרים"]}}
+  if(t===1)return{q:"כמה צלעות יש למלבן?",a:4,opts:[3,4,5,6]};
+  if(t===2){let h=r(1,10);let ans=(h+2)%12||12;return{q:`השעה ${h}:00. בעוד שעתיים תהיה השעה...`,a:`${ans}:00`,opts:[`${h}:00`,`${(h%12)+1}:00`,`${ans}:00`,`${((h+2)%12)+1}:00`]}}
+  return{q:"איזה גוף יש לו 6 פאות ריבועיות?",a:"קובייה",opts:["קובייה","כדור","חרוט","גליל"]}
 }
 function renderTopics(){
-  $("studentTitle").textContent=`שלום ${state.student}! 👋`;
-  $("topicCards").innerHTML=TOPICS.map(t=>`<button class="topic-item" data-topic="${t.id}"><span class="topic-icon">${t.icon}</span><span><h3>${t.title}</h3><p>${t.desc}</p></span><span class="arrow">←</span></button>`).join("");
-  document.querySelectorAll(".topic-item").forEach(b=>b.onclick=()=>startTopic(b.dataset.topic));
-  updateScores();
+  const d=data[S.student];
+  $("studentTitle").textContent=`שלום ${S.student}! 👋`;
+  $("topicScore").textContent=`${d.score} ⭐`;
+  $("levelCards").innerHTML=`<div class="adaptive-note">🧠 <strong>למידה חכמה:</strong> מתחילים בדרגת <strong>התחלה</strong>. אחרי 3 תשובות נכונות ברצף המערכת מעלה בעדינות את רמת הקושי. אם יש טעות, נשארים באותה מדרגה עד שמתחזקים.</div>`;
+  $("topicCards").innerHTML=TOPICS.map(t=>{let li=d.levels[t.id]||0;return`<button class="topic-item" data-id="${t.id}"><span class="topic-icon">${t.icon}</span><span><b>${t.title}</b><small>${t.desc} • רמה: ${levelName(li)}</small></span><em>←</em></button>`}).join("");
+  document.querySelectorAll(".topic-item").forEach(b=>b.onclick=()=>start(b.dataset.id));
 }
-function startTopic(id){
-  state.topic=TOPICS.find(t=>t.id===id); state.completed=0; state.total=10; state.streak=0; show("exercise"); nextQuestion();
+function start(id){
+  S.topic=TOPICS.find(t=>t.id===id);
+  S.done=0;
+  S.levelIndex=data[S.student].levels[S.topic.id]||0;
+  S.streak=0;
+  show("exercise");
+  next();
 }
-function nextQuestion(){
-  if(state.completed>=state.total){finishSession();return}
-  state.attempts=0;state.selected=null;
-  const g=Math.random()<.5?state.topic.gen:state.topic.genSub||state.topic.gen;
-  state.question=g();
-  $("exerciseTopic").textContent=state.topic.title;
-  $("progress").textContent=`תרגיל ${state.completed+1} מתוך ${state.total}`;
-  $("question").textContent=state.question.q;
-  $("feedback").textContent="";
-  $("feedback").className="feedback";
-  $("hint").classList.add("hidden");
-  const q=state.question;
-  if(q.options){
-    const opts=[...q.options]; // preserve problem-generated options
-    $("answerArea").innerHTML=`<div class="choice-grid">${opts.map((o,i)=>`<button class="choice" data-i="${i}">${o}</button>`).join("")}</div>`;
-    document.querySelectorAll(".choice").forEach(btn=>btn.onclick=()=>{document.querySelectorAll(".choice").forEach(x=>x.classList.remove("selected"));btn.classList.add("selected");state.selected=btn.textContent});
-  }else{
-    $("answerArea").innerHTML=`<input id="answer" class="answer-input" inputmode="numeric" autocomplete="off" aria-label="תשובה" placeholder="?">`;
-    $("answer").focus();
-    $("answer").onkeydown=e=>{if(e.key==="Enter")checkAnswer()};
+function next(){
+  if(S.done>=S.total){finish();return}
+  S.attempt=0;
+  S.q=S.topic.make(S.levelIndex);
+  $("exerciseTopic").textContent=`${S.topic.icon} ${S.topic.title} • ${levelName(S.levelIndex)}`;
+  $("progress").textContent=`תרגיל ${S.done+1} מתוך ${S.total}`;
+  $("question").textContent=S.q.q;
+  $("feedback").textContent="";$("feedback").className="feedback";$("hint").classList.add("hidden");$("streak").textContent=S.streak?`🔥 ${S.streak}/3 הצלחות רצופות לשלב הבא`:"";$("checkBtn").textContent="בדיקה ✓";$("checkBtn").onclick=check;
+  if(S.q.opts){$("answerArea").innerHTML=`<div class="choices">${S.q.opts.map(x=>`<button class="choice">${x}</button>`).join("")}</div>`;document.querySelectorAll(".choice").forEach(b=>b.onclick=()=>{document.querySelectorAll(".choice").forEach(x=>x.classList.remove("selected"));b.classList.add("selected")})}else{$("answerArea").innerHTML=`<input id="answer" class="answer-input" inputmode="numeric" autocomplete="off" placeholder="?" autofocus>`;$("answer").onkeydown=e=>e.key==="Enter"&&check()}
+}
+function val(){const c=document.querySelector(".choice.selected");return c?c.textContent:$("answer")?.value||""}
+function norm(x){return String(x).trim().replace(/\s/g,"").toLowerCase()}
+function advanceIfReady(){
+  if(S.streak>=3 && S.levelIndex<LEVELS.length-1){
+    S.levelIndex++;
+    data[S.student].levels[S.topic.id]=S.levelIndex;
+    S.streak=0;
+    save();
+    toast(`🚀 מצוין! עליתם לדרגת ${levelName(S.levelIndex)}`);
+    return true;
   }
-  $("checkBtn").textContent="בדיקה ✓";
-  updateScores();
+  return false;
 }
-function normalize(v){return String(v).trim().replace(/\s+/g,"").replace(":",":").toLowerCase()}
-function checkAnswer(){
-  let val=state.question.options ? state.selected : $("answer")?.value;
-  if(val===null||val===undefined||val===""){toast("בחרו או כתבו תשובה 🙂");return}
-  state.attempts++;
-  const correct=normalize(val)===normalize(state.question.a);
-  if(correct){
-    current().correct++; current().questions++; current().score += state.attempts===1?10:5;
-    if(state.attempts===2) current().secondTry++;
-    const tid=state.topic.id; current().byTopic[tid] ||= {correct:0,questions:0}; current().byTopic[tid].correct++; current().byTopic[tid].questions++;
-    state.completed++;state.streak++;
-    feedbackSuccess(state.attempts===1);
-    save();updateScores();
-    setTimeout(nextQuestion,1200);
-  }else if(state.attempts===1){
-    $("feedback").innerHTML="כמעט! 💪 נסו שוב — אתם יכולים.";
-    $("feedback").className="feedback failure";
-    $("hint").textContent=`💡 תזכורת: בדקו את הפעולה והספרות. קחו נשימה ונסו פעם נוספת.`;
-    $("hint").classList.remove("hidden");
-    if($("answer")){$("answer").value="";$("answer").focus()}
-    state.streak=0;
+function check(){
+  const v=val();
+  if(!v)return toast("בחרו או כתבו תשובה 🙂");
+  S.attempt++;
+  if(norm(v)===norm(S.q.a)){
+    const d=data[S.student];d.correct++;d.questions++;d.score+=S.attempt===1?10:5;if(S.attempt===2)d.secondTry++;d.byTopic[S.topic.id] ||= {correct:0,questions:0};d.byTopic[S.topic.id].correct++;d.byTopic[S.topic.id].questions++;
+    if(S.attempt===1)S.streak++;else S.streak=0;
+    d.levels[S.topic.id]=S.levelIndex;
+    S.done++;save();
+    const promoted=advanceIfReady();
+    success(S.attempt===1,promoted);
+    setTimeout(next,1200);
+  }else if(S.attempt===1){
+    S.streak=0;
+    $("feedback").textContent="כמעט! 💪 קחו נשימה ונסו שוב.";$("feedback").className="feedback failure";$("hint").textContent="💡 בדקו שוב את הפעולה, הסימנים והספרות.";$("hint").classList.remove("hidden");if($("answer")){$("answer").value="";$("answer").focus()}
   }else{
-    current().questions++;
-    const tid=state.topic.id; current().byTopic[tid] ||= {correct:0,questions:0}; current().byTopic[tid].questions++;
-    state.completed++;state.streak=0;
-    $("feedback").innerHTML=`לא נורא! 🌱 <br>כל ניסיון מלמד אותנו משהו. ממשיכים לתרגיל הבא!`;
-    $("feedback").className="feedback";
-    save();setTimeout(nextQuestion,1600);
+    const d=data[S.student];d.questions++;d.byTopic[S.topic.id] ||= {correct:0,questions:0};d.byTopic[S.topic.id].questions++;S.streak=0;S.done++;save();$("feedback").innerHTML="🌱 לא נורא! כל ניסיון מלמד אותנו משהו. נשארים כרגע באותה מדרגה וממשיכים הלאה.";setTimeout(next,1500)
   }
 }
-function feedbackSuccess(first){
-  $("feedback").innerHTML=first?"🎉 מצוין! תשובה נכונה! +10 ⭐":"🌟 כל הכבוד על הניסיון הנוסף! +5 ⭐";
-  $("feedback").className="feedback success";confetti();
-}
-function finishSession(){
-  const c=current();
-  c.history.push({date:new Date().toISOString(),topic:state.topic.title,score:c.score,correct:c.correct,questions:c.questions});
-  save(); updateScores();
-  $("question").textContent="🏆 כל הכבוד!";
-  $("answerArea").innerHTML=`<p style="font-size:1.2rem">סיימתם 10 תרגילים בנושא <strong>${state.topic.title}</strong>.</p>`;
-  $("feedback").innerHTML=`${state.student} צבר/ה עד עכשיו <strong>${c.score} ⭐</strong>`;
-  $("feedback").className="feedback success";
-  $("checkBtn").textContent="חזרה לנושאים";
-  $("checkBtn").onclick=()=>{ $("checkBtn").onclick=checkAnswer; show("topics"); renderTopics(); };
-}
-function confetti(){
-  const host=$("confetti");host.innerHTML="";
-  for(let i=0;i<70;i++){const p=document.createElement("i");p.className="piece";p.style.left=Math.random()*100+"%";p.style.top=(-10-Math.random()*20)+"%";p.style.background=`hsl(${Math.random()*360},85%,60%)`;p.style.transform=`rotate(${Math.random()*360}deg)`;p.style.animationDelay=(Math.random()*.15)+"s";host.appendChild(p)}
-  setTimeout(()=>host.innerHTML="",1600);
-}
-function toast(t){$("toast").textContent=t;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),1800)}
-
-function report(){
-  const names=["עילאי","רואי"], totalScore=names.reduce((a,n)=>a+state.data[n].score,0);
-  $("reportContent").innerHTML=`<div class="card" style="margin-top:18px;text-align:center"><div style="font-size:2.3rem;font-weight:900">${totalScore} ⭐</div><div style="color:var(--muted)">סה״כ ניקוד של שני התלמידים</div></div>
-  <div class="report-grid">${names.map(n=>{
-    const d=state.data[n], pct=d.questions?Math.round(d.correct/d.questions*100):0;
-    const topics=TOPICS.map(t=>{const x=d.byTopic[t.id];return x?`<tr><td>${t.title}</td><td>${x.correct}</td><td>${x.questions}</td></tr>`:""}).join("");
-    return `<div class="report-student"><h2>${n} ${d.score>=100?"🏆":""}</h2>
-      <div class="stat-row"><span>ניקוד</span><strong>${d.score} ⭐</strong></div>
-      <div class="stat-row"><span>תרגילים</span><strong>${d.questions}</strong></div>
-      <div class="stat-row"><span>הצלחות</span><strong>${d.correct}</strong></div>
-      <div class="stat-row"><span>דיוק</span><strong>${pct}%</strong></div>
-      <div class="stat-row"><span>הצלחות בניסיון שני</span><strong>${d.secondTry}</strong></div>
-      <div class="bar"><span style="width:${pct}%"></span></div>
-      <details><summary>פירוט לפי נושא</summary><table class="report-table"><tr><th>נושא</th><th>נכון</th><th>תרגילים</th></tr>${topics||"<tr><td colspan=3>עדיין אין נתונים</td></tr>"}</table></details>
-    </div>`}).join("")}</div>`;
-}
-function reportText(){
-  return ["דוח התקדמות – מתרגלים ומצליחים","",...["עילאי","רואי"].map(n=>{const d=state.data[n],p=d.questions?Math.round(d.correct/d.questions*100):0;return `${n}: ${d.score} כוכבים | ${d.correct}/${d.questions} הצלחות | דיוק ${p}% | ניסיון שני: ${d.secondTry}`}),"",`סה"כ ניקוד: ${["עילאי","רואי"].reduce((a,n)=>a+state.data[n].score,0)} ⭐`].join("\n");
-}
-
-document.querySelectorAll(".student-card").forEach(b=>b.onclick=()=>{state.student=b.dataset.student;show("topics");renderTopics()});
-$("reportHome").onclick=()=>{report();show("report")};
-$("shareReport").onclick=async()=>{const txt=reportText();if(navigator.share){try{await navigator.share({title:"דוח התקדמות – מתרגלים ומצליחים",text:txt})}catch(e){}}else{await navigator.clipboard?.writeText(txt);toast("הדוח הועתק ללוח 📋")}};
-$("printReport").onclick=()=>window.print();
-$("resetAll").onclick=()=>{if(confirm("לאפס את כל נתוני עילאי ורואי?")){localStorage.removeItem("mathPracticeData");location.reload()}};
-document.querySelectorAll("[data-back]").forEach(b=>b.onclick=()=>show(b.dataset.back));
-$("checkBtn").onclick=checkAnswer;
-updateScores();
-
-let deferredPrompt;
-window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;$("installBtn").classList.remove("hidden")});
-$("installBtn").onclick=async()=>{if(deferredPrompt){deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;$("installBtn").classList.add("hidden")}else toast("בדפדפן זה אפשר להתקין דרך תפריט הדפדפן → הוספה למסך הבית")};
-if("serviceWorker" in navigator) window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+function finish(){const d=data[S.student];d.sessions.push({date:new Date().toISOString(),topic:S.topic.title,level:levelName(S.levelIndex)});save();$("question").textContent="🏆 סיימתם!";$("answerArea").innerHTML=`<p>סיימתם 10 תרגילים ב<strong>${S.topic.title}</strong>.</p><p>רמת הסיום: <strong>${levelName(S.levelIndex)}</strong></p><p>הניקוד של ${S.student}: <strong>${d.score} ⭐</strong></p>`;$("feedback").innerHTML="מעולה! אפשר לחזור לנושאים.";$("checkBtn").textContent="חזרה לנושאים";$("checkBtn").onclick=()=>{show("topics");renderTopics()}}
+function success(first,promoted=false){$("feedback").innerHTML=promoted?`🚀 מעולה! התקדמתם לדרגת ${levelName(S.levelIndex)}! ⭐`:first?"🎉 מצוין! +10 ⭐":"🌟 כל הכבוד על הניסיון הנוסף! +5 ⭐";$("feedback").className="feedback success";confetti()}
+function finish(){const d=data[S.student];d.sessions.push({date:new Date().toISOString(),topic:S.topic.title,level:S.level});save();$("question").textContent="🏆 סיימתם!";$("answerArea").innerHTML=`<p>סיימתם 10 תרגילים ב<strong>${S.topic.title}</strong>.</p><p>הניקוד של ${S.student}: <strong>${d.score} ⭐</strong></p>`;$("feedback").innerHTML="מעולה! אפשר לחזור לנושאים.";$("checkBtn").textContent="חזרה לנושאים";$("checkBtn").onclick=()=>{show("topics");$("checkBtn").onclick=check;renderTopics()}}
+function confetti(){const h=$("confetti");h.innerHTML="";for(let i=0;i<65;i++){let p=document.createElement("i");p.className="piece";p.style.left=Math.random()*100+"%";p.style.top="-20px";p.style.background=`hsl(${Math.random()*360},85%,60%)`;p.style.animationDelay=Math.random()*.12+"s";h.appendChild(p)}setTimeout(()=>h.innerHTML="",1500)}
+function pct(d){return d.questions?Math.round(d.correct/d.questions*100):0}
+function renderDashboard(){$("dashboard").innerHTML=["עילאי","רואי"].map(n=>{let d=data[n],p=pct(d),goal=Math.max(1,d.goal);return`<div class="person"><h2>${n}<span>${d.score} ⭐</span></h2><div class="stat"><span>תרגילים</span><b>${d.questions}</b></div><div class="stat"><span>הצלחות</span><b>${d.correct}</b></div><div class="stat"><span>דיוק</span><b>${p}%</b></div><div class="stat"><span>ניסיון שני</span><b>${d.secondTry}</b></div><div class="bar"><span style="width:${p}%"></span></div><small>יעד ניקוד: ${goal} ⭐</small></div>`}).join("");$("goals").innerHTML=["עילאי","רואי"].map(n=>`<div class="goal"><label>יעד ניקוד ל-${n}</label><span><input type="number" min="10" step="10" data-goal="${n}" value="${data[n].goal}"> ⭐</span></div>`).join("");document.querySelectorAll("[data-goal]").forEach(i=>i.onchange=()=>{data[i.dataset.goal].goal=Number(i.value)||100;save();renderDashboard()})}
+function fullReport(){let total=data["עילאי"].score+data["רואי"].score;$("reportContent").innerHTML=`<div class="card report-card"><h1 class="report-title">📊 דוח התקדמות</h1><p>דוח מסכם לעילאי ורואי</p><div style="font-size:2rem;font-weight:900">${total} ⭐</div><div>סה״כ ניקוד</div></div>${["עילאי","רואי"].map(n=>{let d=data[n];return`<div class="card report-card"><h2>${n} ${d.score>=d.goal?"🏆":""}</h2><div class="stat"><span>ניקוד</span><b>${d.score} ⭐</b></div><div class="stat"><span>תרגילים</span><b>${d.questions}</b></div><div class="stat"><span>הצלחות</span><b>${d.correct}</b></div><div class="stat"><span>דיוק</span><b>${pct(d)}%</b></div><div class="stat"><span>הצלחות בניסיון שני</span><b>${d.secondTry}</b></div><table class="report-table"><tr><th>נושא</th><th>נכון</th><th>סה״כ</th></tr>${TOPICS.map(t=>{let x=d.byTopic[t.id];return x?`<tr><td>${t.title}</td><td>${x.correct}</td><td>${x.questions}</td></tr>`:""}).join("")}</table></div>`}).join("")}`;show("report")}
+function reportText(){return["דוח התקדמות – מתרגלים ומצליחים","",...["עילאי","רואי"].map(n=>{let d=data[n];return`${n}: ${d.score} כוכבים | ${d.correct}/${d.questions} הצלחות | דיוק ${pct(d)}% | ניסיון שני ${d.secondTry}`}),"",`סה״כ: ${data["עילאי"].score+data["רואי"].score} כוכבים`].join("\n")}
+function toast(t){$("toast").textContent=t;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),1700)}
+document.querySelectorAll(".student-card").forEach(b=>b.onclick=()=>{S.student=b.dataset.student;show("topics");renderTopics()});
+$("teacherBtn").onclick=()=>{renderDashboard();show("teacher")};$("teacherReport").onclick=fullReport;
+$("shareTeacher").onclick=async()=>{let t=reportText();if(navigator.share){try{await navigator.share({title:"דוח התקדמות",text:t})}catch(e){}}else{await navigator.clipboard?.writeText(t);toast("הדוח הועתק ללוח 📋")}};
+$("printTeacher").onclick=()=>{fullReport();setTimeout(()=>window.print(),100)};
+$("resetData").onclick=()=>{if(confirm("לאפס את כל נתוני התלמידים?")){localStorage.removeItem("practiceV2");location.reload()}};
+document.querySelectorAll("[data-back]").forEach(b=>b.onclick=()=>show(b.dataset.back));$("checkBtn").onclick=check;updateHome();
+let dp;window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();dp=e;$("installBtn").classList.remove("hidden")});$("installBtn").onclick=async()=>{if(dp){dp.prompt();await dp.userChoice;dp=null;$("installBtn").classList.add("hidden")}else toast("פתחו את תפריט הדפדפן ובחרו הוספה למסך הבית")};
+if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
