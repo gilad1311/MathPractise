@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#635bff"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon.svg">
-<link rel="stylesheet" href="styles.css"><title>מתרגלים ומצליחים</title>
+<link rel="stylesheet" href="styles.css"><title>מתרגלים ומצליחים — חנות פרסים</title>
 </head>
 <body>
 <div id="confetti"></div>
-<header class="topbar"><div><b>🌟 מתרגלים ומצליחים</b><small>מערכת תרגול חשבון</small></div><button id="installBtn" class="ghost hidden">📲 התקנה</button></header>
+<header class="topbar"><div><b>🌟 מתרגלים ומצליחים — חנות פרסים</b><small>מערכת תרגול חשבון</small></div><button id="installBtn" class="ghost hidden">📲 התקנה</button></header>
 <main class="wrap">
 <section id="home" class="screen active">
  <div class="hero card"><div><span class="pill">למידה מותאמת</span><h1>לומדים, מצליחים וצוברים כוכבים ⭐</h1><p>תרגול אישי לעילאי ולרואי לפי הנושאים שנלמדו, עם ניסיון נוסף, עידוד ודוח התקדמות.</p></div><div class="hero-icons">➕<br>✖️ 📐<br>🏆</div></div>
- <div class="section-head"><h2>בחירת תלמיד</h2><button id="teacherBtn" class="secondary">👩‍🏫 אזור מורה</button></div>
+ <div class="section-head"><h2>בחירת תלמיד</h2><div class="head-actions"><button id="storeBtn" class="secondary">🛍️ חנות פרסים</button><button id="teacherBtn" class="secondary">👩‍🏫 אזור מורה</button></div></div>
  <div class="students">
   <button class="student-card" data-student="עילאי"><span class="avatar">👦</span><span><b>עילאי</b><small>להתחיל תרגול</small></span><strong id="homeScore-עילאי">0 ⭐</strong></button>
   <button class="student-card" data-student="רואי"><span class="avatar">🧒</span><span><b>רואי</b><small>להתחיל תרגול</small></span><strong id="homeScore-רואי">0 ⭐</strong></button>
@@ -30,11 +30,19 @@
  <div class="card exercise-card"><div id="progress"></div><div id="streak"></div><div id="question" class="question"></div><div id="hint" class="hint hidden"></div><div id="answerArea"></div><button id="checkBtn" class="primary">בדיקה ✓</button><div id="feedback" class="feedback"></div></div>
 </section>
 
+<section id="store" class="screen">
+ <button class="back" data-back="topics">→ חזרה</button>
+ <div class="section-head"><div><h1>🛍️ <span id="storeStudent">חנות הפרסים</span></h1><p>משתמשים בכוכבים שצברתם כדי לבחור פרס.</p></div><div class="score-big" id="storeBalance">0 ⭐</div></div>
+ <div class="card"><h2>🎯 איך החנות עובדת?</h2><p>כל תשובה נכונה מזכה בכוכבים. כשמגיעים לעלות של פרס, אפשר לממש אותו. המימוש מוריד את הכוכבים מהיתרה.</p></div>
+ <div id="storeProducts" class="product-list"></div>
+ <div class="card"><h2>🎁 הפרסים שמומשו</h2><div id="redemptionHistory"></div></div>
+</section>
+
 <section id="teacher" class="screen">
  <button class="back" data-back="home">→ חזרה</button>
  <div class="section-head"><div><h1>👩‍🏫 אזור מורה</h1><p>מעקב אחר ההתקדמות של עילאי ורואי</p></div><button id="teacherReport" class="primary">📊 דוח מלא</button></div>
  <div id="dashboard" class="dashboard"></div>
- <div class="card"><h2>🎯 יעדי תרגול</h2><div id="goals"></div></div>
+ <div class="card"><h2>🎯 יעדי תרגול</h2><p>אפשר להגדיר יעד אישי לכל תלמיד. כשהניקוד מגיע ליעד מופיעה 🏆.</p><div id="goals"></div></div><div class="card"><div class="section-head"><div><h2>🛍️ ניהול חנות</h2><p>אפשר להוסיף, לשנות מחיר, שם, אייקון ולהפעיל/להסתיר פרסים.</p></div><button id="addProduct" class="primary">＋ הוסף פרס</button></div><div id="productEditor"></div><div class="preset-goals"><b>יעדי פתיחה מומלצים:</b> 🍫 שוקולד — 50 ⭐ · 👨‍👦 טיול עם אבא — 300 ⭐ · 👩‍👦 טיול עם אמא — 300 ⭐</div></div>
  <div class="teacher-actions"><button id="shareTeacher" class="secondary">📤 שיתוף דוח</button><button id="printTeacher" class="secondary">🖨️ הדפסה / PDF</button><button id="resetData" class="danger">איפוס נתונים</button></div>
 </section>
 

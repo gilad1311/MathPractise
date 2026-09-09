@@ -48,3 +48,11 @@ http://localhost:8080
 - A mistake resets the streak, so the app does not rush the student upward.
 - The current level is saved separately for עילאי and רואי and for each topic.
 - The student can always see the current level next to each topic.
+
+
+## V5 – עדכון חנות הפרסים
+- שוקולד: 50 ⭐
+- טיול עם אבא: 100 ⭐
+- טיול עם אמא: 100 ⭐
+- לצאת מוקדם מבית הספר + לישון אצל סבתא: 500 ⭐
+- כל המוצרים ניתנים לעדכון מאזור המורה.

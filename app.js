@@ -1,3 +1,11 @@
+
+// V5 reward defaults: parent/child outings are cheaper; the special school/Grandma reward is expensive.
+const V5_REWARD_DEFAULTS = [
+  { id:"chocolate", name:"שוקולד", icon:"🍫", cost:50, active:true },
+  { id:"dad-trip", name:"טיול עם אבא", icon:"👨‍👦", cost:100, active:true },
+  { id:"mom-trip", name:"טיול עם אמא", icon:"👩‍👦", cost:100, active:true },
+  { id:"early-grandma", name:"לצאת מוקדם מבית הספר + לישון אצל סבתא", icon:"🏡", cost:500, active:true }
+];
 const TOPICS=[
 {id:"add20",icon:"➕",title:"חיבור וחיסור עד 20",desc:"מתחילים במספרים קטנים ומתקדמים בהדרגה",make:l=>{l=levelIndex(l);let a,b; if(l===0){a=r(0,5);b=r(0,5-a)} else if(l===1){a=r(0,10);b=r(0,10-a)} else if(l===2){a=r(0,20);b=r(0,20-a)} else {a=r(8,20);b=r(1,20-a)} return Math.random()<.5?{q:`${a} + ${b}`,a:a+b}:{q:`${a+b} − ${a}`,a:b}}},
 {id:"add100",icon:"💯",title:"חיבור וחיסור עד 100",desc:"עולים בהדרגה ממספרים קטנים לחיבור ופריטה",make:l=>{l=levelIndex(l);let a,b;if(l===0){a=r(1,10);b=r(1,10)}else if(l===1){a=r(1,30);b=r(1,30)}else if(l===2){a=r(10,70);b=r(1,100-a)}else{a=r(30,90);b=r(1,100-a)}return Math.random()<.5?{q:`${a} + ${b}`,a:a+b}:{q:`${a+b} − ${b}`,a:a}}},
@@ -9,16 +17,19 @@ const TOPICS=[
 {id:"mixed",icon:"🎯",title:"תרגול מעורב",desc:"שילוב מכל נושאי הלימוד",make:l=>{const t=TOPICS[r(0,6)];return t.make(levelIndex(l))}}
 ];
 const LEVELS=["התחלה","קל","בינוני","מתקדם"];
-let data=JSON.parse(localStorage.getItem("practiceV2")||"{}");
-for(const n of ["עילאי","רואי"]){
-  data[n] ||= {score:0,correct:0,questions:0,secondTry:0,byTopic:{},sessions:[],goal:100,levels:{}};
-  data[n].levels ||= {};
-  data[n].sessions ||= [];
-}
+const defaultProducts=[
+{id:"chocolate",icon:"🍫",name:"שוקולד",description:"יחידת שוקולד אחת",cost:50,active:true},
+{id:"dad-trip",icon:"👨‍👦",name:"טיול עם אבא",description:"זמן איכות ובילוי עם אבא",cost:100,active:true},
+{id:"mom-trip",icon:"👩‍👦",name:"טיול עם אמא",description:"זמן איכות ובילוי עם אמא",cost:100,active:true}
+];
+let data=JSON.parse(localStorage.getItem("practiceV4")||localStorage.getItem("practiceV2")||"{}");
+data.products ||= defaultProducts;
+for(const n of ["עילאי","רואי"]){data[n] ||= {score:0,correct:0,questions:0,secondTry:0,byTopic:{},sessions:[],goal:100,levels:{},redemptions:[]};data[n].redemptions ||= [];data[n].levels ||= {};data[n].sessions ||= [];}
+const save=()=>localStorage.setItem("practiceV4",JSON.stringify(data));
 const levelName=i=>LEVELS[Math.max(0,Math.min(LEVELS.length-1,i))];
 const levelIndex=l=>typeof l==='number'?l:Math.max(0,LEVELS.indexOf(l));
 let S={student:null,topic:null,levelIndex:0,q:null,attempt:0,done:0,total:10,streak:0};
-const $=id=>document.getElementById(id), r=(a,b)=>Math.floor(Math.random()*(b-a+1))+a, save=()=>localStorage.setItem("practiceV2",JSON.stringify(data));
+const $=id=>document.getElementById(id), r=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
 function show(id){document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));$(id).classList.add("active");scrollTo(0,0)}
 function updateHome(){for(const n of ["עילאי","רואי"])$(`homeScore-${n}`).textContent=`${data[n].score} ⭐`}
 function word(l=0){
@@ -93,20 +104,42 @@ function check(){
     const d=data[S.student];d.questions++;d.byTopic[S.topic.id] ||= {correct:0,questions:0};d.byTopic[S.topic.id].questions++;S.streak=0;S.done++;save();$("feedback").innerHTML="🌱 לא נורא! כל ניסיון מלמד אותנו משהו. נשארים כרגע באותה מדרגה וממשיכים הלאה.";setTimeout(next,1500)
   }
 }
-function finish(){const d=data[S.student];d.sessions.push({date:new Date().toISOString(),topic:S.topic.title,level:levelName(S.levelIndex)});save();$("question").textContent="🏆 סיימתם!";$("answerArea").innerHTML=`<p>סיימתם 10 תרגילים ב<strong>${S.topic.title}</strong>.</p><p>רמת הסיום: <strong>${levelName(S.levelIndex)}</strong></p><p>הניקוד של ${S.student}: <strong>${d.score} ⭐</strong></p>`;$("feedback").innerHTML="מעולה! אפשר לחזור לנושאים.";$("checkBtn").textContent="חזרה לנושאים";$("checkBtn").onclick=()=>{show("topics");renderTopics()}}
 function success(first,promoted=false){$("feedback").innerHTML=promoted?`🚀 מעולה! התקדמתם לדרגת ${levelName(S.levelIndex)}! ⭐`:first?"🎉 מצוין! +10 ⭐":"🌟 כל הכבוד על הניסיון הנוסף! +5 ⭐";$("feedback").className="feedback success";confetti()}
 function finish(){const d=data[S.student];d.sessions.push({date:new Date().toISOString(),topic:S.topic.title,level:S.level});save();$("question").textContent="🏆 סיימתם!";$("answerArea").innerHTML=`<p>סיימתם 10 תרגילים ב<strong>${S.topic.title}</strong>.</p><p>הניקוד של ${S.student}: <strong>${d.score} ⭐</strong></p>`;$("feedback").innerHTML="מעולה! אפשר לחזור לנושאים.";$("checkBtn").textContent="חזרה לנושאים";$("checkBtn").onclick=()=>{show("topics");$("checkBtn").onclick=check;renderTopics()}}
 function confetti(){const h=$("confetti");h.innerHTML="";for(let i=0;i<65;i++){let p=document.createElement("i");p.className="piece";p.style.left=Math.random()*100+"%";p.style.top="-20px";p.style.background=`hsl(${Math.random()*360},85%,60%)`;p.style.animationDelay=Math.random()*.12+"s";h.appendChild(p)}setTimeout(()=>h.innerHTML="",1500)}
 function pct(d){return d.questions?Math.round(d.correct/d.questions*100):0}
-function renderDashboard(){$("dashboard").innerHTML=["עילאי","רואי"].map(n=>{let d=data[n],p=pct(d),goal=Math.max(1,d.goal);return`<div class="person"><h2>${n}<span>${d.score} ⭐</span></h2><div class="stat"><span>תרגילים</span><b>${d.questions}</b></div><div class="stat"><span>הצלחות</span><b>${d.correct}</b></div><div class="stat"><span>דיוק</span><b>${p}%</b></div><div class="stat"><span>ניסיון שני</span><b>${d.secondTry}</b></div><div class="bar"><span style="width:${p}%"></span></div><small>יעד ניקוד: ${goal} ⭐</small></div>`}).join("");$("goals").innerHTML=["עילאי","רואי"].map(n=>`<div class="goal"><label>יעד ניקוד ל-${n}</label><span><input type="number" min="10" step="10" data-goal="${n}" value="${data[n].goal}"> ⭐</span></div>`).join("");document.querySelectorAll("[data-goal]").forEach(i=>i.onchange=()=>{data[i.dataset.goal].goal=Number(i.value)||100;save();renderDashboard()})}
+function renderStore(){
+ const d=data[S.student];
+ $("storeStudent").textContent=`חנות הפרסים של ${S.student}`;
+ $("storeBalance").textContent=`${d.score} ⭐`;
+ $("storeProducts").innerHTML=data.products.filter(p=>p.active).map(p=>`<div class="product-card"><div class="product-icon">${p.icon}</div><div class="product-info"><h3>${p.name}</h3><p>${p.description}</p><strong>${p.cost} ⭐</strong></div><button class="primary" data-buy="${p.id}" ${d.score<p.cost?'disabled':''}>קבלה 🎁</button></div>`).join("") || `<div class="empty">אין כרגע מוצרים זמינים בחנות.</div>`;
+ document.querySelectorAll("[data-buy]").forEach(b=>b.onclick=()=>buyProduct(b.dataset.buy));
+ $("redemptionHistory").innerHTML=(d.redemptions||[]).slice().reverse().map(x=>`<div class="history-row"><span>${x.icon} ${x.name}</span><b>−${x.cost} ⭐</b><small>${new Date(x.date).toLocaleDateString('he-IL')}</small></div>`).join("") || `<p>עדיין לא מימשתם פרס.</p>`;
+}
+function buyProduct(id){
+ const p=data.products.find(x=>x.id===id),d=data[S.student];
+ if(!p||d.score<p.cost)return toast("עדיין אין מספיק כוכבים 🙂");
+ if(!confirm(`לממש את ${p.name} תמורת ${p.cost} ⭐?`))return;
+ d.score-=p.cost;d.redemptions ||= [];d.redemptions.push({productId:p.id,name:p.name,icon:p.icon,cost:p.cost,date:new Date().toISOString()});save();renderStore();updateHome();toast(`🎁 כל הכבוד! קיבלתם ${p.name}`);
+}
+function renderProductEditor(){
+ $("productEditor").innerHTML=data.products.map((p,i)=>`<div class="edit-product"><span class="product-icon">${p.icon}</span><input data-p="name" data-i="${i}" value="${p.name}"><input data-p="icon" data-i="${i}" value="${p.icon}"><input type="number" min="1" data-p="cost" data-i="${i}" value="${p.cost}"><label><input type="checkbox" data-p="active" data-i="${i}" ${p.active?'checked':''}> פעיל</label><button class="danger small" data-del="${i}">🗑️</button></div>`).join("");
+ document.querySelectorAll("[data-p]").forEach(el=>el.onchange=()=>{const p=data.products[Number(el.dataset.i)];p[el.dataset.p]=el.type==='checkbox'?el.checked:el.dataset.p==='cost'?Number(el.value):el.value;save();renderProductEditor();});
+ document.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{if(confirm("למחוק את המוצר?")){data.products.splice(Number(b.dataset.del),1);save();renderProductEditor();}});
+}
+function addProduct(){const name=prompt("שם המוצר / הפרס:","פרס חדש");if(!name)return;const cost=Number(prompt("כמה כוכבים?", "100"))||100;data.products.push({id:"p-"+Date.now(),icon:"🎁",name,description:"פרס חדש",cost,active:true});save();renderProductEditor();}
+
+function renderDashboard(){$("dashboard").innerHTML=["עילאי","רואי"].map(n=>{let d=data[n],p=pct(d),goal=Math.max(1,d.goal);return`<div class="person"><h2>${n}<span>${d.score} ⭐</span></h2><div class="stat"><span>תרגילים</span><b>${d.questions}</b></div><div class="stat"><span>הצלחות</span><b>${d.correct}</b></div><div class="stat"><span>דיוק</span><b>${p}%</b></div><div class="stat"><span>ניסיון שני</span><b>${d.secondTry}</b></div><div class="bar"><span style="width:${p}%"></span></div><small>יעד ניקוד: ${goal} ⭐</small></div>`}).join("");$("goals").innerHTML=["עילאי","רואי"].map(n=>`<div class="goal"><label>יעד ניקוד ל-${n}</label><span><input type="number" min="10" step="10" data-goal="${n}" value="${data[n].goal}"> ⭐</span></div>`).join("");document.querySelectorAll("[data-goal]").forEach(i=>i.onchange=()=>{data[i.dataset.goal].goal=Number(i.value)||100;save();renderDashboard()});renderProductEditor()}
 function fullReport(){let total=data["עילאי"].score+data["רואי"].score;$("reportContent").innerHTML=`<div class="card report-card"><h1 class="report-title">📊 דוח התקדמות</h1><p>דוח מסכם לעילאי ורואי</p><div style="font-size:2rem;font-weight:900">${total} ⭐</div><div>סה״כ ניקוד</div></div>${["עילאי","רואי"].map(n=>{let d=data[n];return`<div class="card report-card"><h2>${n} ${d.score>=d.goal?"🏆":""}</h2><div class="stat"><span>ניקוד</span><b>${d.score} ⭐</b></div><div class="stat"><span>תרגילים</span><b>${d.questions}</b></div><div class="stat"><span>הצלחות</span><b>${d.correct}</b></div><div class="stat"><span>דיוק</span><b>${pct(d)}%</b></div><div class="stat"><span>הצלחות בניסיון שני</span><b>${d.secondTry}</b></div><table class="report-table"><tr><th>נושא</th><th>נכון</th><th>סה״כ</th></tr>${TOPICS.map(t=>{let x=d.byTopic[t.id];return x?`<tr><td>${t.title}</td><td>${x.correct}</td><td>${x.questions}</td></tr>`:""}).join("")}</table></div>`}).join("")}`;show("report")}
 function reportText(){return["דוח התקדמות – מתרגלים ומצליחים","",...["עילאי","רואי"].map(n=>{let d=data[n];return`${n}: ${d.score} כוכבים | ${d.correct}/${d.questions} הצלחות | דיוק ${pct(d)}% | ניסיון שני ${d.secondTry}`}),"",`סה״כ: ${data["עילאי"].score+data["רואי"].score} כוכבים`].join("\n")}
 function toast(t){$("toast").textContent=t;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),1700)}
 document.querySelectorAll(".student-card").forEach(b=>b.onclick=()=>{S.student=b.dataset.student;show("topics");renderTopics()});
-$("teacherBtn").onclick=()=>{renderDashboard();show("teacher")};$("teacherReport").onclick=fullReport;
+$("teacherBtn").onclick=()=>{renderDashboard();show("teacher")};
+$("storeBtn").onclick=()=>{renderStore();show("store")};
+$("addProduct").onclick=addProduct;$("teacherReport").onclick=fullReport;
 $("shareTeacher").onclick=async()=>{let t=reportText();if(navigator.share){try{await navigator.share({title:"דוח התקדמות",text:t})}catch(e){}}else{await navigator.clipboard?.writeText(t);toast("הדוח הועתק ללוח 📋")}};
 $("printTeacher").onclick=()=>{fullReport();setTimeout(()=>window.print(),100)};
-$("resetData").onclick=()=>{if(confirm("לאפס את כל נתוני התלמידים?")){localStorage.removeItem("practiceV2");location.reload()}};
+$("resetData").onclick=()=>{if(confirm("לאפס את כל נתוני התלמידים והחנות?")){localStorage.removeItem("practiceV4");localStorage.removeItem("practiceV2");location.reload()}};
 document.querySelectorAll("[data-back]").forEach(b=>b.onclick=()=>show(b.dataset.back));$("checkBtn").onclick=check;updateHome();
 let dp;window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();dp=e;$("installBtn").classList.remove("hidden")});$("installBtn").onclick=async()=>{if(dp){dp.prompt();await dp.userChoice;dp=null;$("installBtn").classList.add("hidden")}else toast("פתחו את תפריט הדפדפן ובחרו הוספה למסך הבית")};
 if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
